@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Sign Up · Trinetra</title>
+    <style>
+        :root {
+            --bg-0: #05070c; --bg-1: #0a0e16; --bg-2: #0f141e;
+            --border-1: #1e2836; --text-0: #e8edf5; --text-1: #b4bfd0;
+            --text-2: #7d8a9e; --text-3: #515e73; --accent: #4ea8de;
+            --error: #ff4757; --mono: monospace; --sans: sans-serif;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { background: var(--bg-0); color: var(--text-0); font-family: var(--sans); min-height: 100vh; display: grid; place-items: center; padding: 20px; }
+        .card { width: 100%; max-width: 460px; background: var(--bg-1); border: 1px solid var(--border-1); border-radius: 16px; padding: 32px 28px; position: relative; overflow: hidden; box-shadow: 0 30px 80px rgba(0,0,0,.5); }
+        .card::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg, var(--accent), #7c5cff); }
+        .brand { display: flex; align-items: center; gap: 12px; margin-bottom: 24px; justify-content: center; }
+        .brand-mark { width: 40px; height: 40px; border-radius: 10px; background: linear-gradient(135deg, var(--accent), #7c5cff); display: grid; place-items: center; font-size: 20px; }
+        .brand-name { font-size: 18px; font-weight: 800; }
+        h1 { font-size: 22px; font-weight: 700; margin-bottom: 24px; text-align: center; }
+        .error { background: rgba(255, 71, 87, .1); border: 1px solid rgba(255, 71, 87, .35); color: var(--error); padding: 10px; border-radius: 8px; font-size: 13px; margin-bottom: 18px; text-align: center; }
+        .field { margin-bottom: 16px; }
+        label { display: block; font-size: 11px; color: var(--text-2); margin-bottom: 6px; text-transform: uppercase; font-weight: 600; letter-spacing: 1px; }
+        input, select { width: 100%; padding: 11px 14px; background: var(--bg-2); border: 1px solid var(--border-1); border-radius: 8px; color: var(--text-0); font-size: 14px; font-family: inherit; }
+        input:focus, select:focus { outline: none; border-color: var(--accent); }
+        button { width: 100%; padding: 12px; background: var(--accent); color: var(--bg-0); border: none; border-radius: 8px; font-weight: 800; font-size: 14px; cursor: pointer; margin-top: 10px; transition: opacity 0.2s; }
+        button:hover { opacity: 0.9; }
+        .foot { margin-top: 20px; text-align: center; font-size: 13px; color: var(--text-3); }
+        .foot a { color: var(--accent); text-decoration: none; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="card">
+        <div class="brand">
+            <div class="brand-mark">🛡️</div>
+            <div class="brand-name">TRINETRA</div>
+        </div>
+        <h1>Create an Account</h1>
+
+        {% if error %}
+        <div class="error">{{ error }}</div>
+        {% endif %}
+
+        <form method="POST" action="/register">
+            <div class="field">
+                <label>Full Name</label>
+                <input type="text" name="name" required placeholder="e.g. Ramesh Kumar">
+            </div>
+            <div class="field">
+                <label>Email Address</label>
+                <input type="email" name="email" required placeholder="you@example.com">
+            </div>
+            <div class="field">
+                <label>Password</label>
+                <input type="password" name="password" required placeholder="••••••••">
+            </div>
+            <div class="field">
+                <label>Community</label>
+                <select name="community" required>
+                    <option value="General Public">General Public</option>
+                    <option value="Students">Students</option>
+                    <option value="Senior Citizens">Senior Citizens</option>
+                    <option value="Small Businesses">Small Businesses</option>
+                </select>
+            </div>
+            <button type="submit">Sign Up →</button>
+        </form>
+
+        <div class="foot">
+            Already have an account? <a href="/login">Sign In</a>
+        </div>
+    </div>
+</body>
+</html>

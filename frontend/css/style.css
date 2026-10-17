@@ -1,0 +1,134 @@
+body {
+    font-family: Arial, sans-serif;
+    background: #f4f7fb;
+    margin: 0;
+}
+
+.container {
+    width: 450px;
+    margin: 80px auto;
+    text-align: center;
+}
+
+h1 {
+    margin-bottom: 10px;
+}
+
+.subtitle {
+    color: #666;
+    font-size: 18px;
+}
+
+.community-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    margin-top: 30px;
+}
+
+.community-card {
+    padding: 20px;
+    border: 2px solid #ddd;
+    border-radius: 12px;
+    background: white;
+    cursor: pointer;
+    font-size: 18px;
+}
+
+.community-card:hover {
+    border-color: #333;
+}
+
+.community-card span {
+    margin-left: 10px;
+}
+
+#selectedCommunity {
+    font-weight: bold;
+    margin-top: 20px;
+}
+
+#continueBtn {
+    margin-top: 15px;
+    padding: 12px 30px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+#locationSection {
+    margin-top: 25px;
+}
+
+#location {
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+}
+
+#languageSection {
+    margin-top: 25px;
+    text-align: left;
+}
+
+#languageSection label {
+    display: block;
+    margin: 10px 0;
+    font-size: 16px;
+}
+
+#notificationSection {
+    margin-top: 25px;
+    text-align: left;
+}
+
+#notificationSection label {
+    display: block;
+    margin: 10px 0;
+    font-size: 16px;
+}
+
+#profileSection {
+    margin-bottom: 25px;
+}
+
+#profileSection input {
+    display: block;
+    width: 100%;
+    box-sizing: border-box;
+    padding: 12px;
+    margin: 10px 0;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+    font-size: 16px;
+}
+
+#dashboard {
+    margin-top: 40px;
+    padding: 25px;
+    background: white;
+    border-radius: 12px;
+    text-align: left;
+}
+
+#dashboardTitle {
+    white-space: pre-line;
+}
+
+.threat {
+    padding: 15px;
+    margin: 10px 0;
+    background: #f4f7fb;
+    border-radius: 8px;
+}
+
+.threat strong {
+    font-size: 17px;
+}
+
+.threat span {
+    color: #666;
+}

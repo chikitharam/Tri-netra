@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ intelligence.simplified.title or (threat_data.title if threat_data else 'Threat') }} - Trinetra</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+            background: #0a0e17;
+            color: #e0e6ed;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 860px;
+            margin: 0 auto;
+        }
+
+        .back-link {
+            color: #00d4ff;
+            text-decoration: none;
+            font-size: 14px;
+            display: inline-block;
+            margin-bottom: 24px;
+            transition: opacity 0.2s ease;
+        }
+
+        .back-link:hover {
+            opacity: 0.75;
+        }
+
+        /* ============================================================
+           HERO / HEADER
+           ============================================================ */
+        .hero {
+            background: linear-gradient(135deg, #111b2e 0%, #0d1524 100%);
+            border: 1px solid #1a2332;
+            border-radius: 20px;
+            padding: 32px 36px;
+            margin-bottom: 24px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #00d4ff, #7b2ffc, #ff1744);
+        }
+
+        .hero-title {
+            font-size: 32px;
+            font-weight: 800;
+            color: #fff;
+            margin-bottom: 16px;
+            line-height: 1.25;
+            letter-spacing: -0.5px;
+        }
+
+        .hero-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .badge-status-verified {
+            background: rgba(76, 175, 80, 0.15);
+            color: #4caf50;
+            border: 1px solid rgba(76, 175, 80, 0.4);
+        }
+
+        .badge-status-review {
+            background: rgba(255, 145, 0, 0.15);
+            color: #ff9100;
+            border: 1px solid rgba(255, 145, 0, 0.4);
+        }
+
+        .badge-severity-critical {
+            background: rgba(255, 23, 68, 0.15);
+            color: #ff1744;
+            border: 1px solid rgba(255, 23, 68, 0.4);
+        }
+        .badge-severity-high {
+            background: rgba(255, 87, 34, 0.15);
+            color: #ff5722;
+            border: 1px solid rgba(255, 87, 34, 0.4);
+        }
+        .badge-severity-medium {
+            background: rgba(255, 193, 7, 0.15);
+            color: #ffc107;
+            border: 1px solid rgba(255, 193, 7, 0.4);
+        }
+        .badge-severity-low {
+            background: rgba(76, 175, 80, 0.15);
+            color: #4caf50;
+            border: 1px solid rgba(76, 175, 80, 0.4);
+        }
+
+        .badge-type {
+            background: rgba(123, 47, 252, 0.15);
+            color: #b47bff;
+            border: 1px solid rgba(123, 47, 252, 0.4);
+        }
+
+        /* ============================================================
+           SECTIONS
+           ============================================================ */
+        .section {
+            background: #111b2e;
+            border: 1px solid #1a2332;
+            border-radius: 16px;
+            padding: 24px 28px;
+            margin-bottom: 18px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
+            border-bottom: 1px solid #1a2332;
+        }
+
+        .section-icon {
+            font-size: 22px;
+        }
+
+        .section-title {
+            font-size: 15px;
+            font-weight: 700;
+            color: #8899bb;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+        }
+
+        .section-body {
+            font-size: 16px;
+            color: #e0e6ed;
+            line-height: 1.7;
+        }
+
+        /* ============================================================
+           AFFECTED CHIPS
+           ============================================================ */
+        .affected-chips {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .affected-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 18px;
+            border-radius: 24px;
+            font-size: 15px;
+            font-weight: 600;
+            background: linear-gradient(135deg, #7b2ffc, #00d4ff);
+            color: #fff;
+            box-shadow: 0 4px 12px rgba(123, 47, 252, 0.3);
+        }
+
+        /* ============================================================
+           NUMBERED STEPS (How attack works)
+           ============================================================ */
+        .step-list {
+            list-style: none;
+            padding: 0;
+            counter-reset: step-counter;
+        }
+
+        .step-list li {
+            position: relative;
+            padding: 14px 18px 14px 56px;
+            background: #0d1524;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            border-left: 3px solid #00d4ff;
+            font-size: 15px;
+            line-height: 1.6;
+            counter-increment: step-counter;
+        }
+
+        .step-list li::before {
+            content: counter(step-counter);
+            position: absolute;
+            left: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 26px;
+            height: 26px;
+            border-radius: 50%;
+            background: #00d4ff;
+            color: #0a0e17;
+            font-weight: 700;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* ============================================================
+           WARNING SIGNS
+           ============================================================ */
+        .warning-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .warning-list li {
+            padding: 12px 16px;
+            background: #0d1524;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            border-left: 3px solid #ff9100;
+            font-size: 15px;
+            line-height: 1.6;
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+        }
+
+        .warning-list li .marker {
+            color: #ff9100;
+            flex-shrink: 0;
+            font-size: 16px;
+            line-height: 1.6;
+        }
+
+        /* ============================================================
+           ACTION STEPS
+           ============================================================ */
+        .action-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .action-list li {
+            padding: 12px 16px;
+            background: #0d1524;
+            border-radius: 10px;
+            margin-bottom: 8px;
+            border-left: 3px solid #4caf50;
+            font-size: 15px;
+            line-height: 1.6;
+            display: flex;
+            gap: 10px;
+            align-items: flex-start;
+        }
+
+        .action-list li .marker {
+            color: #4caf50;
+            flex-shrink: 0;
+            font-weight: 700;
+            line-height: 1.6;
+        }
+
+        /* ============================================================
+           VERIFICATION
+           ============================================================ */
+        .verification-box {
+            background: #0d1524;
+            border: 2px solid #1a2332;
+            border-radius: 14px;
+            padding: 22px 24px;
+            transition: border-color 0.3s ease;
+        }
+
+        .verification-box.verified {
+            border-color: rgba(76, 175, 80, 0.5);
+        }
+
+        .verification-box.unverified {
+            border-color: rgba(255, 145, 0, 0.5);
+        }
+
+        .btn {
+            padding: 11px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-family: inherit;
+        }
+
+        .btn-success {
+            background: #4caf50;
+            color: #fff;
+        }
+        .btn-success:hover {
+            background: #388e3c;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(76, 175, 80, 0.3);
+        }
+
+        .btn-danger {
+            background: #ff1744;
+            color: #fff;
+        }
+        .btn-danger:hover {
+            background: #d50000;
+            transform: translateY(-2px);
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin: 10px 0;
+        }
+
+        .checkbox-group label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            background: #1a2332;
+            padding: 10px 16px;
+            border-radius: 10px;
+            font-size: 14px;
+            transition: background 0.2s ease;
+        }
+
+        .checkbox-group label:hover {
+            background: #212e42;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            accent-color: #00d4ff;
+            width: 16px;
+            height: 16px;
+        }
+
+        .form-group {
+            margin-bottom: 18px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #8899bb;
+            font-size: 13px;
+            margin-bottom: 6px;
+            font-weight: 600;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 11px 14px;
+            background: #0a0e17;
+            border: 1px solid #1a2332;
+            border-radius: 8px;
+            color: #e0e6ed;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            outline: none;
+            border-color: #00d4ff;
+        }
+
+        .form-group textarea {
+            min-height: 70px;
+            resize: vertical;
+        }
+
+        .empty-note {
+            color: #556688;
+            font-size: 14px;
+            font-style: italic;
+        }
+
+        @media (max-width: 600px) {
+            .hero-title { font-size: 24px; }
+            .hero { padding: 24px 20px; }
+            .section { padding: 20px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+
+        <a href="/" class="back-link">← Back to Dashboard</a>
+
+        <!-- ============================================================
+             HERO
+             ============================================================ -->
+        <div class="hero">
+            <div class="hero-title">
+                {{ intelligence.simplified.title or (threat_data.title if threat_data else 'Threat Alert') }}
+            </div>
+
+            <div class="hero-meta">
+                <!-- Verification status -->
+                {% if verified %}
+                <span class="badge badge-status-verified">✓ Verified{% if verified_by %} · {{ verified_by }}{% endif %}</span>
+                {% else %}
+                <span class="badge badge-status-review">⚠️ Needs Review</span>
+                {% endif %}
+
+                <!-- Severity -->
+                {% set sev = intelligence.severity or 'Medium' %}
+                <span class="badge badge-severity-{{ sev|lower }}">{{ sev }} Severity</span>
+
+                <!-- Threat type -->
+                {% if intelligence.threat_type %}
+                <span class="badge badge-type">{{ intelligence.threat_type }}</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- ============================================================
+             WHO IS AFFECTED
+             ============================================================ -->
+        <div class="section">
+            <div class="section-header">
+                <span class="section-icon">👥</span>
+                <span class="section-title">Who Is Affected</span>
+            </div>
+            <div class="section-body">
+                <div class="affected-chips">
+                    {% if affected_display %}
+                        {% for who in affected_display %}
+                        <span class="affected-chip">👤 {{ who }}</span>
+                        {% endfor %}
+                    {% else %}
+                        <span class="affected-chip">👤 General Public</span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- ============================================================
+             WHAT HAPPENED
+             ============================================================ -->
+        <div class="section">
+            <div class="section-header">
+                <span class="section-icon">🧠</span>
+                <span class="section-title">What Happened</span>
+            </div>
+            <div class="section-body">
+                {% if intelligence.simplified.what_happened %}
+                    {{ intelligence.simplified.what_happened }}
+                {% else %}
+                    <span class="empty-note">No summary available.</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- ============================================================
+             HOW THE ATTACK WORKS
+             ============================================================ -->
+        <div class="section">
+            <div class="section-header">
+                <span class="section-icon">🔍</span>
+                <span class="section-title">How The Attack Works</span>
+            </div>
+            <div class="section-body">
+                {% if intelligence.simplified.how_attack_works %}
+                    {% set raw = intelligence.simplified.how_attack_works %}
+                    {% set parts = raw.replace('! ', '. ').replace('? ', '. ').split('. ') %}
+                    {% set steps = [] %}
+                    {% for p in parts %}
+                        {% if p.strip() %}
+                            {% set _ = steps.append(p.strip()) %}
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if steps|length > 1 %}
+                    <ol class="step-list">
+                        {% for step in steps %}
+                        <li>{{ step }}{% if not step.endswith('.') %}.{% endif %}</li>
+                        {% endfor %}
+                    </ol>
+                    {% else %}
+                    <div>{{ raw }}</div>
+                    {% endif %}
+                {% else %}
+                    <span class="empty-note">No attack description available.</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- ============================================================
+             HOW TO IDENTIFY
+             ============================================================ -->
+        <div class="section">
+            <div class="section-header">
+                <span class="section-icon">🚨</span>
+                <span class="section-title">How To Identify It</span>
+            </div>
+            <div class="section-body">
+                {% if intelligence.simplified.how_to_identify %}
+                <ul class="warning-list">
+                    {% for sign in intelligence.simplified.how_to_identify %}
+                    <li>
+                        <span class="marker">🚩</span>
+                        <span>{{ sign }}</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                    <span class="empty-note">No warning signs available.</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- ============================================================
+             WHAT TO DO
+             ============================================================ -->
+        <div class="section">
+            <div class="section-header">
+                <span class="section-icon">🛡️</span>
+                <span class="section-title">What You Should Do</span>
+            </div>
+            <div class="section-body">
+                {% if intelligence.simplified.what_to_do %}
+                <ul class="action-list">
+                    {% for action in intelligence.simplified.what_to_do %}
+                    <li>
+                        <span class="marker">✓</span>
+                        <span>{{ action }}</span>
+                    </li>
+                    {% endfor %}
+                </ul>
+                {% else %}
+                    <span class="empty-note">No action steps available.</span>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- ============================================================
+             SAFETY TIP (optional)
+             ============================================================ -->
+        {% if intelligence.simplified.safety_tip %}
+        <div class="section" style="border-left: 4px solid #00d4ff;">
+            <div class="section-header">
+                <span class="section-icon">💡</span>
+                <span class="section-title">Safety Tip</span>
+            </div>
+            <div class="section-body" style="font-style: italic; color: #b0c4de;">
+                {{ intelligence.simplified.safety_tip }}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- ============================================================
+             METADATA STRIP
+             ============================================================ -->
+        <div class="section" style="padding: 16px 24px;">
+            <div style="display: flex; flex-wrap: wrap; gap: 20px; font-size: 12px; color: #556688;">
+                <div><strong style="color:#8899bb;">Threat ID:</strong> {{ threat_id }}</div>
+                <div><strong style="color:#8899bb;">Processed:</strong> {{ intelligence.processed_at[:19] if intelligence.processed_at else 'N/A' }}</div>
+                {% if intelligence.region and intelligence.region != 'Unknown' %}
+                <div><strong style="color:#8899bb;">Region:</strong> {{ intelligence.region }}</div>
+                {% endif %}
+                <div><strong style="color:#8899bb;">AI Model:</strong> {{ intelligence.simplified.ai_model or 'N/A' }}</div>
+            </div>
+        </div>
+
+        <!-- ============================================================
+             MANUAL VERIFICATION
+             ============================================================ -->
+        <div class="section">
+            <div class="section-header">
+                <span class="section-icon">🔍</span>
+                <span class="section-title">Manual Verification</span>
+            </div>
+
+            <div class="verification-box {% if verified %}verified{% else %}unverified{% endif %}">
+
+                {% if verified %}
+                <div style="color: #4caf50; font-weight: 700; margin-bottom: 10px; font-size: 16px;">
+                    ✓ Verified by {{ verified_by }}
+                </div>
+                <div style="color: #8899bb; font-size: 14px;">
+                    Verified at: {{ intelligence.verified_at[:19] if intelligence.verified_at else 'N/A' }}
+                </div>
+                {% if verification_note %}
+                <div style="color: #8899bb; font-size: 14px; margin-top: 10px;">
+                    <strong>Note:</strong> {{ verification_note }}
+                </div>
+                {% endif %}
+                <div style="margin-top: 18px;">
+                    <form action="/unverify/{{ threat_id }}" method="POST">
+                        <button type="submit" class="btn btn-danger"
+                                onclick="return confirm('Revert to AI classification?');">
+                            🔄 Revert To AI
+                        </button>
+                    </form>
+                </div>
+
+                {% else %}
+                <form action="/verify/{{ threat_id }}" method="POST">
+
+                    <div class="form-group">
+                        <label>Confirm Affected Communities</label>
+                        <div class="checkbox-group">
+                            {% for community in valid_communities %}
+                            <label>
+                                <input type="checkbox" name="communities" value="{{ community }}"
+                                    {% if community in affected_display %}checked{% endif %}>
+                                {{ community }}
+                            </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>Verified By</label>
+                        <input type="text" name="verified_by" value="Admin">
+                    </div>
+
+                    <div class="form-group">
+                        <label>Note (optional)</label>
+                        <textarea name="verification_note"
+                                  placeholder="Any observations, corrections, or context..."></textarea>
+                    </div>
+
+                    <button type="submit" class="btn btn-success">✅ Verify Threat</button>
+
+                </form>
+                {% endif %}
+
+            </div>
+        </div>
+
+    </div>
+</body>
+</html>

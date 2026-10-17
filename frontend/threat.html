@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Threat Detail · Trinetra</title>
+    <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+
+<div class="app">
+
+    <!-- Top bar -->
+    <div class="topbar">
+        <div class="brand">
+            <div class="brand-mark">🛡️</div>
+            <div>
+                <div class="brand-name">TRINETRA</div>
+                <div class="brand-sub">threat detail</div>
+            </div>
+        </div>
+        <div class="topbar-right">
+            <a href="/app/dashboard.html" class="logout-btn">← Back to feed</a>
+        </div>
+    </div>
+
+    <!-- Loading -->
+    <div id="loading" class="loading">
+        <div class="spinner"></div>
+        <div>Loading threat…</div>
+    </div>
+
+    <!-- Error -->
+    <div id="errorState" class="empty" style="display:none;">
+        <div class="empty-ico">⚠️</div>
+        <h3 id="errorTitle">Could not load this threat</h3>
+        <p id="errorMsg">Please go back and try again.</p>
+    </div>
+
+    <!-- Detail -->
+    <div id="detail" style="display:none;">
+
+        <!-- Hero -->
+        <div class="hero">
+            <div class="hero-greeting" id="threatId">—</div>
+            <div class="hero-name" id="threatTitle">—</div>
+            <div class="hero-badges" id="threatBadges"></div>
+        </div>
+
+        <!-- What is happening -->
+        <div class="detail-section">
+            <div class="detail-label">🧠 What Is Happening?</div>
+            <p class="detail-text" id="whatHappened">—</p>
+        </div>
+
+        <!-- How the attack works -->
+        <div class="detail-section">
+            <div class="detail-label">⚙️ How Does The Attack Work?</div>
+            <p class="detail-text" id="howAttack">—</p>
+        </div>
+
+        <!-- How to identify -->
+        <div class="detail-section">
+            <div class="detail-label">🚨 How To Identify It</div>
+            <ul id="identifyList" class="detail-list warning-list"></ul>
+        </div>
+
+        <!-- What to do -->
+        <div class="detail-section">
+            <div class="detail-label">🛡️ What Should You Do?</div>
+            <ul id="actionList" class="detail-list action-list"></ul>
+        </div>
+
+        <!-- Safety tip -->
+        <div class="detail-section tip-section" id="tipSection" style="display:none;">
+            <div class="detail-label">💡 Safety Tip</div>
+            <p class="detail-text detail-tip" id="safetyTip">—</p>
+        </div>
+
+        <!-- Meta strip -->
+        <div class="meta-strip">
+            <span><strong>Threat ID:</strong> <span id="metaId">—</span></span>
+            <span><strong>Type:</strong> <span id="metaType">—</span></span>
+            <span><strong>Region:</strong> <span id="metaRegion">—</span></span>
+            <span><strong>Verified:</strong> <span id="metaVerified">—</span></span>
+        </div>
+
+        <!-- Footer -->
+        <div class="foot">
+            <span>Trinetra v2.0 · Module 6 · Threat Detail</span>
+            <a href="/app/dashboard.html" style="color: var(--accent);">← Back to feed</a>
+        </div>
+
+    </div>
+
+</div>
+
+<script src="js/threat.js"></script>
+</body>
+</html>

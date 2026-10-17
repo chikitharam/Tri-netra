@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>TRINETRA - Community Selection</title>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+    <div id="dashboard" style="display: none;">
+
+        <h1 id="dashboardTitle"></h1>
+
+        <h2>⚠️ Recent Threats</h2>
+
+        <div id="threatList"></div>
+
+        <h2>🔔 Important Alerts</h2>
+
+        <p id="importantAlert">
+            Stay alert and avoid suspicious links or messages.
+        </p>
+
+    </div>
+
+    <div class="container">
+
+        <h1>Welcome to TRINETRA 👋</h1>
+
+        <div id="profileSection">
+
+    <h2>Your Profile</h2>
+
+    <input
+        type="text"
+        id="name"
+        placeholder="Enter your name"
+    >
+
+    <input
+        type="email"
+        id="email"
+        placeholder="Enter your email"
+    >
+
+</div>
+
+        <p class="subtitle">
+            Select your community
+        </p>
+
+        <div class="community-container">
+
+            <button class="community-card" onclick="selectCommunity('student')">
+                🎓
+                <span>Student</span>
+            </button>
+
+            <button class="community-card" onclick="selectCommunity('senior_citizen')">
+                👴
+                <span>Senior Citizen</span>
+            </button>
+
+            <button class="community-card" onclick="selectCommunity('small_business')">
+                🏪
+                <span>Small Business</span>
+            </button>
+
+            <button class="community-card" onclick="selectCommunity('regional')">
+                🌐
+                <span>Regional Community</span>
+            </button>
+
+        </div>
+
+        <p id="selectedCommunity"></p>
+
+<div id="locationSection" style="display: none;">
+
+    <h2>Where are you located?</h2>
+
+    <select id="location">
+        <option value="">Select your state</option>
+        <option value="Karnataka">Karnataka</option>
+        <option value="Tamil Nadu">Tamil Nadu</option>
+        <option value="Kerala">Kerala</option>
+        <option value="Andhra Pradesh">Andhra Pradesh</option>
+        <option value="Telangana">Telangana</option>
+        <option value="Maharashtra">Maharashtra</option>
+        <option value="Other">Other</option>
+    </select>
+
+</div>
+<div id="languageSection" style="display: none;">
+
+    <h2>Choose your language</h2>
+
+    <label>
+        <input type="radio" name="language" value="English">
+        English
+    </label>
+
+    <label>
+        <input type="radio" name="language" value="Kannada">
+        Kannada
+    </label>
+
+    <label>
+        <input type="radio" name="language" value="Hindi">
+        Hindi
+    </label>
+
+    <label>
+        <input type="radio" name="language" value="Telugu">
+        Telugu
+    </label>
+
+    <label>
+        <input type="radio" name="language" value="Tamil">
+        Tamil
+    </label>
+
+</div>
+<div id="notificationSection" style="display: none;">
+
+    <h2>How would you like to receive alerts?</h2>
+
+    <label>
+        <input type="radio" name="notificationPreference" value="all">
+        All alerts
+    </label>
+
+    <label>
+        <input type="radio" name="notificationPreference" value="important">
+        Important alerts only
+    </label>
+
+    <label>
+        <input type="radio" name="notificationPreference" value="critical">
+        Critical alerts only
+    </label>
+
+</div>
+
+<button id="continueBtn" onclick="saveProfile()" disabled>
+    SAVE PROFILE
+</button>
+
+
+    </div>
+
+    <script src="script.js"></script>
+
+</body>
+</html>

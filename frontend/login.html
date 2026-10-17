@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sign In · Trinetra</title>
+    <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body class="auth-body">
+
+<div class="auth-card">
+    <div class="auth-brand">
+        <div class="auth-mark">🛡️</div>
+        <div>
+            <div class="auth-name">TRINETRA</div>
+            <div class="auth-sub">threat intelligence</div>
+        </div>
+    </div>
+
+    <h1 class="auth-title">Sign in</h1>
+    <p class="auth-lead">
+        Sign in to see the personalized threat feed for your community.
+    </p>
+
+    <div id="error" class="auth-error" style="display:none;"></div>
+
+    <form id="loginForm" class="auth-form" autocomplete="on">
+        <div class="auth-field">
+            <label for="email">Email</label>
+            <input type="email"
+                   id="email"
+                   name="email"
+                   placeholder="chikitha@example.com"
+                   autocomplete="email"
+                   required>
+        </div>
+
+        <div class="auth-field">
+            <label for="password">Password</label>
+            <input type="password"
+                   id="password"
+                   name="password"
+                   placeholder="••••••••"
+                   autocomplete="current-password"
+                   required>
+        </div>
+
+        <button type="submit" class="auth-submit" id="submitBtn">
+            Sign In
+        </button>
+    </form>
+
+    <div class="auth-divider">demo accounts</div>
+
+    <div class="auth-demo">
+        <button type="button" class="demo-btn" data-email="chikitha@example.com">
+            <span class="demo-avatar">C</span>
+            <span>
+                <span class="demo-name">Chikitha</span>
+                <span class="demo-comm">Students</span>
+            </span>
+        </button>
+        <button type="button" class="demo-btn" data-email="raman@example.com">
+            <span class="demo-avatar">R</span>
+            <span>
+                <span class="demo-name">Raman Iyer</span>
+                <span class="demo-comm">Senior Citizens</span>
+            </span>
+        </button>
+        <button type="button" class="demo-btn" data-email="meera@example.com">
+            <span class="demo-avatar">M</span>
+            <span>
+                <span class="demo-name">Meera Stores</span>
+                <span class="demo-comm">Small Businesses</span>
+            </span>
+        </button>
+        <button type="button" class="demo-btn" data-email="guest@example.com">
+            <span class="demo-avatar">G</span>
+            <span>
+                <span class="demo-name">Guest User</span>
+                <span class="demo-comm">General Public</span>
+            </span>
+        </button>
+    </div>
+
+    <div class="auth-foot">
+        Passwords are hashed · Demo environment
+    </div>
+</div>
+
+<script src="js/login.js"></script>
+</body>
+</html>

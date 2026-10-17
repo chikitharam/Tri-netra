@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Feed · Trinetra</title>
+    <link rel="stylesheet" href="css/dashboard.css">
+</head>
+<body>
+
+<div class="app">
+
+    <!-- Top bar -->
+    <div class="topbar">
+        <div class="brand">
+            <div class="brand-mark">🛡️</div>
+            <div>
+                <div class="brand-name">TRINETRA</div>
+                <div class="brand-sub">personal feed</div>
+            </div>
+        </div>
+        <div class="topbar-right">
+            <span>Signed in as <strong id="userNameTop">…</strong></span>
+            <button id="logoutBtn" class="logout-btn">Sign out</button>
+        </div>
+    </div>
+
+    <!-- Hero -->
+    <div class="hero">
+        <div class="hero-greeting">Welcome back</div>
+        <div class="hero-name">Hi, <span id="username">…</span> 👋</div>
+        <div class="hero-community">👥 <span id="community">…</span></div>
+        <div class="hero-filter">
+            Filtering threats for
+            <strong id="community2">…</strong>
+            &nbsp;·&nbsp;
+            <span class="filter-count" id="heroThreatCount">0</span>
+            match<span id="matchesPlural">es</span>
+        </div>
+    </div>
+
+    <!-- Safety tip -->
+    <div class="tip" id="tipCard" style="display:none;">
+        <div class="tip-ico">💡</div>
+        <div class="tip-body">
+            <div class="tip-label">Safety Tip</div>
+            <div class="tip-text" id="safetyTip"></div>
+        </div>
+    </div>
+
+    <!-- Threats -->
+    <div class="section-label">
+        ⚠️ Threats Affecting You
+        <span class="count-badge" id="threatCount">0</span>
+    </div>
+
+    <!-- Loading -->
+    <div id="loading" class="loading">
+        <div class="spinner"></div>
+        <div>Loading your feed…</div>
+    </div>
+
+    <!-- Threat list -->
+    <div id="threatContainer" class="threat-list" style="display:none;"></div>
+
+    <!-- Empty state -->
+    <div id="emptyState" class="empty" style="display:none;">
+        <div class="empty-ico">✅</div>
+        <h3>No threats targeting your community right now</h3>
+        <p>You're up to date. We'll notify you when something new appears for
+           <strong id="emptyCommunity">your community</strong>.</p>
+    </div>
+
+    <!-- Footer -->
+    <div class="foot">
+        <span>Trinetra v2.0 · Module 6 · Personalized feed</span>
+        <span id="generatedAt"></span>
+    </div>
+
+</div>
+
+<script src="js/dashboard.js"></script>
+</body>
+</html>

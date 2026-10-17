@@ -1,0 +1,1766 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trinetra · Console</title>
+    <style>
+        /* ============================================================
+           DESIGN TOKENS
+           ============================================================ */
+        :root {
+            --bg-0: #05070c;
+            --bg-1: #0a0e16;
+            --bg-2: #0f141e;
+            --bg-3: #141a26;
+            --bg-hover: #171f2e;
+            --bg-selected: #1a2436;
+
+            --border-0: #161d29;
+            --border-1: #1e2836;
+            --border-2: #2a3648;
+
+            --text-0: #e8edf5;
+            --text-1: #b4bfd0;
+            --text-2: #7d8a9e;
+            --text-3: #515e73;
+
+            --accent: #4ea8de;
+            --accent-dim: rgba(78, 168, 222, .12);
+            --accent-line: rgba(78, 168, 222, .35);
+
+            --critical: #ff4757;
+            --high:     #ff7a45;
+            --medium:   #f5b400;
+            --low:      #22c55e;
+            --ok:       #10b981;
+            --warn:     #f59e0b;
+
+            --mono: 'JetBrains Mono', 'SF Mono', 'Menlo', 'Consolas', monospace;
+            --sans: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+            --sidebar-w: 220px;
+            --toolbar-h: 52px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html, body {
+            background: var(--bg-0);
+            color: var(--text-0);
+            font-family: var(--sans);
+            font-size: 13px;
+            line-height: 1.45;
+            -webkit-font-smoothing: antialiased;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        a { color: inherit; text-decoration: none; }
+
+        /* ============================================================
+           LAYOUT
+           ============================================================ */
+        .app {
+            display: grid;
+            grid-template-columns: var(--sidebar-w) 1fr;
+            height: 100vh;
+        }
+
+        /* ============================================================
+           SIDEBAR
+           ============================================================ */
+        .sidebar {
+            background: var(--bg-1);
+            border-right: 1px solid var(--border-1);
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .side-brand {
+            height: var(--toolbar-h);
+            padding: 0 18px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            border-bottom: 1px solid var(--border-1);
+            flex-shrink: 0;
+        }
+
+        .side-mark {
+            width: 26px;
+            height: 26px;
+            border-radius: 6px;
+            background: linear-gradient(135deg, var(--accent), #7c5cff);
+            display: grid;
+            place-items: center;
+            font-size: 13px;
+            flex-shrink: 0;
+        }
+
+        .side-name {
+            font-size: 13.5px;
+            font-weight: 700;
+            letter-spacing: -0.2px;
+        }
+
+        .side-name small {
+            display: block;
+            color: var(--text-3);
+            font-size: 10px;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .nav {
+            padding: 14px 10px;
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .nav-section {
+            color: var(--text-3);
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+            padding: 12px 10px 6px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 7px 10px;
+            border-radius: 6px;
+            color: var(--text-1);
+            font-size: 12.5px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background .15s ease, color .15s ease;
+            margin-bottom: 1px;
+        }
+
+        .nav-item:hover {
+            background: var(--bg-2);
+            color: var(--text-0);
+        }
+
+        .nav-item.active {
+            background: var(--accent-dim);
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .nav-item .ico {
+            font-size: 13px;
+            width: 16px;
+            text-align: center;
+        }
+
+        .nav-item .count {
+            margin-left: auto;
+            font-family: var(--mono);
+            font-size: 10.5px;
+            padding: 1px 6px;
+            border-radius: 3px;
+            background: var(--bg-3);
+            color: var(--text-2);
+        }
+
+        .nav-item.active .count {
+            background: rgba(78, 168, 222, .15);
+            color: var(--accent);
+        }
+
+        .side-foot {
+            padding: 12px 16px;
+            border-top: 1px solid var(--border-1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 10.5px;
+            color: var(--text-3);
+            font-family: var(--mono);
+        }
+
+        .pulse {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--ok);
+            box-shadow: 0 0 0 0 rgba(16, 185, 129, .6);
+            animation: pulse 2.2s infinite;
+        }
+
+        @keyframes pulse {
+            0%   { box-shadow: 0 0 0 0 rgba(16,185,129,.6); }
+            70%  { box-shadow: 0 0 0 6px rgba(16,185,129,0); }
+            100% { box-shadow: 0 0 0 0 rgba(16,185,129,0); }
+        }
+
+        /* ============================================================
+           MAIN AREA
+           ============================================================ */
+        .main {
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            min-width: 0;
+            position: relative;
+        }
+
+        /* ============================================================
+           TOOLBAR
+           ============================================================ */
+        .toolbar {
+            height: var(--toolbar-h);
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--bg-1);
+            border-bottom: 1px solid var(--border-1);
+            flex-shrink: 0;
+        }
+
+        .search {
+            position: relative;
+            flex: 1;
+            max-width: 460px;
+        }
+
+        .search input {
+            width: 100%;
+            height: 32px;
+            padding: 0 70px 0 34px;
+            background: var(--bg-2);
+            border: 1px solid var(--border-1);
+            border-radius: 6px;
+            color: var(--text-0);
+            font-size: 12.5px;
+            font-family: inherit;
+            transition: all .15s ease;
+        }
+
+        .search input:focus {
+            outline: none;
+            border-color: var(--accent-line);
+            background: var(--bg-3);
+        }
+
+        .search input::placeholder { color: var(--text-3); }
+
+        .search .ico {
+            position: absolute;
+            left: 11px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-3);
+            font-size: 12px;
+        }
+
+        .search .kbd {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-family: var(--mono);
+            font-size: 10px;
+            padding: 2px 5px;
+            border-radius: 3px;
+            background: var(--bg-3);
+            color: var(--text-3);
+            border: 1px solid var(--border-1);
+        }
+
+        .toolbar-sep {
+            width: 1px;
+            height: 22px;
+            background: var(--border-1);
+        }
+
+        .filter-row {
+            display: flex;
+            gap: 4px;
+        }
+
+        .chip {
+            padding: 6px 11px;
+            border-radius: 5px;
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--text-2);
+            font-size: 11.5px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all .15s ease;
+            user-select: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .chip:hover {
+            color: var(--text-0);
+            background: var(--bg-2);
+        }
+
+        .chip.active {
+            background: var(--accent-dim);
+            border-color: var(--accent-line);
+            color: var(--accent);
+        }
+
+        .chip .count {
+            font-family: var(--mono);
+            font-size: 10.5px;
+            opacity: .7;
+        }
+
+        .toolbar-spacer { flex: 1; }
+
+        .tool-btn {
+            height: 30px;
+            padding: 0 11px;
+            border-radius: 6px;
+            background: var(--bg-2);
+            border: 1px solid var(--border-1);
+            color: var(--text-1);
+            font-size: 11.5px;
+            font-weight: 600;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all .15s ease;
+            font-family: inherit;
+        }
+
+        .tool-btn:hover {
+            background: var(--bg-3);
+            border-color: var(--border-2);
+            color: var(--text-0);
+        }
+
+        .tool-btn.primary {
+            background: var(--accent-dim);
+            border-color: var(--accent-line);
+            color: var(--accent);
+        }
+
+        /* ============================================================
+           STATS STRIP
+           ============================================================ */
+        .stats-strip {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(0, 1fr));
+            background: var(--bg-1);
+            border-bottom: 1px solid var(--border-1);
+            flex-shrink: 0;
+        }
+
+        .stat-cell {
+            padding: 12px 20px;
+            border-right: 1px solid var(--border-1);
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .stat-cell:last-child { border-right: none; }
+
+        .stat-label {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+            color: var(--text-3);
+        }
+
+        .stat-value {
+            font-family: var(--mono);
+            font-size: 20px;
+            font-weight: 700;
+            color: var(--text-0);
+            letter-spacing: -0.5px;
+            line-height: 1.1;
+        }
+
+        .stat-value.c-ok    { color: var(--ok); }
+        .stat-value.c-warn  { color: var(--warn); }
+        .stat-value.c-crit  { color: var(--critical); }
+        .stat-value.c-accent{ color: var(--accent); }
+
+        /* ============================================================
+           MODULE 10 — PENDING USER REPORTS
+           ============================================================ */
+        .reports-strip {
+            padding: 16px 20px;
+            background: var(--bg-1);
+            border-bottom: 1px solid var(--border-1);
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            flex-shrink: 0;
+            align-items: stretch;
+        }
+        .reports-strip::-webkit-scrollbar { height: 6px; }
+        .reports-strip::-webkit-scrollbar-thumb { background: var(--bg-3); border-radius: 3px; }
+
+        .report-card {
+            min-width: 280px;
+            max-width: 320px;
+            background: var(--bg-2);
+            border: 1px solid var(--border-2);
+            border-radius: 8px;
+            padding: 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .report-card h4 {
+            font-size: 12.5px;
+            color: var(--warn);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .report-card p {
+            font-size: 11.5px;
+            color: var(--text-1);
+            flex: 1;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+        .report-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 10px;
+            color: var(--text-3);
+            font-family: var(--mono);
+        }
+
+        /* ============================================================
+           TABLE
+           ============================================================ */
+        .table-wrap {
+            flex: 1;
+            overflow: auto;
+            background: var(--bg-0);
+        }
+
+        .table {
+            min-width: 980px;
+        }
+
+        /* Row grid — 9 columns (added Actions column) */
+        .row {
+            display: grid;
+            grid-template-columns:
+                34px                    /* checkbox */
+                26px                    /* severity dot */
+                minmax(220px, 2.2fr)    /* title + type */
+                minmax(140px, 1.2fr)    /* affected */
+                110px                   /* status */
+                90px                    /* severity */
+                120px                   /* processed */
+                140px;                  /* actions */
+            align-items: center;
+            padding: 0 16px;
+            height: 46px;
+            border-bottom: 1px solid var(--border-0);
+            font-size: 12.5px;
+            cursor: pointer;
+            transition: background .1s ease;
+            position: relative;
+        }
+
+        .row.head {
+            height: 34px;
+            background: var(--bg-1);
+            position: sticky;
+            top: 0;
+            z-index: 5;
+            cursor: default;
+            border-bottom: 1px solid var(--border-1);
+        }
+
+        .row.head:hover { background: var(--bg-1); }
+
+        .row.data:hover {
+            background: var(--bg-hover);
+        }
+
+        .row.data.selected {
+            background: var(--bg-selected);
+        }
+
+        .row.data.selected::before {
+            content: "";
+            position: absolute;
+            left: 0; top: 0; bottom: 0;
+            width: 2px;
+            background: var(--accent);
+        }
+
+        /* Column heads */
+        .col-head {
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+            color: var(--text-3);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            user-select: none;
+        }
+
+        .col-head.sortable { cursor: pointer; }
+        .col-head.sortable:hover { color: var(--text-1); }
+        .col-head .arrow { opacity: 0; font-size: 8px; }
+        .col-head.sorted .arrow { opacity: 1; color: var(--accent); }
+        .col-head.sorted { color: var(--accent); }
+
+        /* Checkbox */
+        .chk {
+            width: 14px;
+            height: 14px;
+            appearance: none;
+            background: var(--bg-2);
+            border: 1px solid var(--border-2);
+            border-radius: 3px;
+            cursor: pointer;
+            display: grid;
+            place-items: center;
+            transition: all .12s ease;
+            flex-shrink: 0;
+        }
+
+        .chk:hover { border-color: var(--accent-line); }
+
+        .chk:checked {
+            background: var(--accent);
+            border-color: var(--accent);
+        }
+
+        .chk:checked::after {
+            content: "✓";
+            color: var(--bg-0);
+            font-size: 10px;
+            font-weight: 900;
+        }
+
+        /* Severity dot */
+        .sev-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            position: relative;
+        }
+
+        .sev-dot.critical { background: var(--critical); box-shadow: 0 0 8px rgba(255,71,87,.6); }
+        .sev-dot.high     { background: var(--high);     box-shadow: 0 0 6px rgba(255,122,69,.5); }
+        .sev-dot.medium   { background: var(--medium);   box-shadow: 0 0 5px rgba(245,180,0,.35); }
+        .sev-dot.low      { background: var(--low); }
+        .sev-dot.unknown  { background: var(--text-3); }
+
+        /* Title cell */
+        .title-cell {
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+            min-width: 0;
+            padding-right: 12px;
+        }
+
+        .title-main {
+            font-weight: 600;
+            color: var(--text-0);
+            font-size: 12.5px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            letter-spacing: -0.1px;
+        }
+
+        .title-sub {
+            font-family: var(--mono);
+            font-size: 10.5px;
+            color: var(--text-3);
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .title-sub .dot {
+            color: var(--border-2);
+            margin: 0 5px;
+        }
+
+        /* Affected */
+        .aff-cell {
+            display: flex;
+            gap: 4px;
+            flex-wrap: nowrap;
+            overflow: hidden;
+        }
+
+        .aff-tag {
+            font-size: 10.5px;
+            font-weight: 600;
+            padding: 2px 7px;
+            border-radius: 3px;
+            background: var(--bg-2);
+            color: var(--text-1);
+            border: 1px solid var(--border-1);
+            white-space: nowrap;
+        }
+
+        /* Status */
+        .status-cell {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: .4px;
+            text-transform: uppercase;
+            font-family: var(--mono);
+        }
+
+        .status-cell .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+        }
+
+        .status-cell.ok { color: var(--ok); }
+        .status-cell.ok .dot { background: var(--ok); }
+
+        .status-cell.review { color: var(--warn); }
+        .status-cell.review .dot { background: var(--warn); }
+
+        /* Severity label */
+        .sev-label {
+            font-family: var(--mono);
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: .3px;
+            text-transform: uppercase;
+        }
+
+        .sev-label.critical { color: var(--critical); }
+        .sev-label.high     { color: var(--high); }
+        .sev-label.medium   { color: var(--medium); }
+        .sev-label.low      { color: var(--low); }
+
+        /* Time */
+        .time-cell {
+            font-family: var(--mono);
+            font-size: 11px;
+            color: var(--text-2);
+            white-space: nowrap;
+        }
+
+        /* Actions cell */
+        .actions-cell {
+            display: flex;
+            justify-content: flex-end;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .view-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-family: var(--mono);
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: .4px;
+            padding: 4px 9px;
+            border-radius: 4px;
+            background: transparent;
+            border: 1px solid transparent;
+            color: var(--text-2);
+            transition: all .15s ease;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+
+        .row.data:hover .view-link {
+            background: var(--accent-dim);
+            border-color: var(--accent-line);
+            color: var(--accent);
+        }
+
+        .row.data.selected .view-link {
+            background: var(--accent-dim);
+            border-color: var(--accent-line);
+            color: var(--accent);
+        }
+
+        .edit-link {
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            font-family: var(--mono);
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: .4px;
+            padding: 4px 9px;
+            border-radius: 4px;
+            background: var(--bg-2);
+            border: 1px solid var(--border-1);
+            color: var(--text-1);
+            transition: all .15s ease;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+
+        .edit-link:hover {
+            background: var(--warn);
+            border-color: var(--warn);
+            color: #000;
+        }
+
+        /* ============================================================
+           BULK ACTION BAR
+           ============================================================ */
+        .bulk-bar {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            background: var(--bg-1);
+            border: 1px solid var(--border-2);
+            border-radius: 10px;
+            padding: 8px 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 12px 40px rgba(0,0,0,.6);
+            opacity: 0;
+            pointer-events: none;
+            transition: all .25s cubic-bezier(.2,.9,.3,1.3);
+            z-index: 20;
+        }
+
+        .bulk-bar.show {
+            opacity: 1;
+            pointer-events: auto;
+            transform: translateX(-50%) translateY(0);
+        }
+
+        .bulk-count {
+            font-family: var(--mono);
+            font-size: 12px;
+            color: var(--accent);
+            font-weight: 700;
+            padding: 0 8px;
+            border-right: 1px solid var(--border-1);
+        }
+
+        /* ============================================================
+           EMPTY STATE
+           ============================================================ */
+        .empty {
+            padding: 100px 20px;
+            text-align: center;
+            color: var(--text-3);
+        }
+
+        .empty-ico {
+            font-size: 40px;
+            opacity: .4;
+            margin-bottom: 12px;
+        }
+
+        .empty h3 {
+            font-size: 15px;
+            color: var(--text-1);
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .empty p {
+            font-size: 12px;
+            color: var(--text-3);
+        }
+
+        .empty code {
+            font-family: var(--mono);
+            font-size: 11px;
+            padding: 2px 6px;
+            background: var(--bg-2);
+            border: 1px solid var(--border-1);
+            border-radius: 3px;
+            color: var(--accent);
+        }
+
+        /* ============================================================
+           STATUS BAR
+           ============================================================ */
+        .statusbar {
+            height: 26px;
+            padding: 0 16px;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            background: var(--bg-1);
+            border-top: 1px solid var(--border-1);
+            font-family: var(--mono);
+            font-size: 10.5px;
+            color: var(--text-3);
+            flex-shrink: 0;
+        }
+
+        .statusbar .item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .statusbar kbd {
+            font-family: var(--mono);
+            font-size: 9.5px;
+            padding: 1px 4px;
+            border-radius: 3px;
+            background: var(--bg-3);
+            border: 1px solid var(--border-1);
+            color: var(--text-2);
+        }
+
+        /* ============================================================
+           EDIT MODAL
+           ============================================================ */
+        .modal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,.75);
+            backdrop-filter: blur(3px);
+            display: none;
+            place-items: center;
+            z-index: 100;
+            padding: 20px;
+        }
+
+        .modal.open { display: grid; }
+
+        .modal-card {
+            width: 100%;
+            max-width: 480px;
+            background: var(--bg-1);
+            border: 1px solid var(--border-2);
+            border-radius: 12px;
+            padding: 22px 24px;
+            position: relative;
+            box-shadow: 0 20px 60px rgba(0,0,0,.8);
+            animation: modalIn .18s ease;
+        }
+
+        @keyframes modalIn {
+            from { opacity: 0; transform: translateY(8px) scale(.98); }
+            to   { opacity: 1; transform: none; }
+        }
+
+        .modal-card::before {
+            content: "";
+            position: absolute;
+            top: 0; left: 0; right: 0;
+            height: 3px;
+            border-radius: 12px 12px 0 0;
+            background: linear-gradient(90deg, var(--accent), #7c5cff);
+        }
+
+        .modal-title {
+            font-size: 15px;
+            font-weight: 800;
+            letter-spacing: -0.2px;
+            margin-bottom: 4px;
+        }
+
+        .modal-sub {
+            font-family: var(--mono);
+            font-size: 10.5px;
+            color: var(--text-3);
+            margin-bottom: 18px;
+            word-break: break-all;
+        }
+
+        .modal-close {
+            position: absolute;
+            top: 14px; right: 14px;
+            width: 28px; height: 28px;
+            border-radius: 6px;
+            background: var(--bg-2);
+            border: 1px solid var(--border-1);
+            color: var(--text-2);
+            display: grid;
+            place-items: center;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .modal-close:hover {
+            color: var(--critical);
+            border-color: rgba(255,71,87,.4);
+        }
+
+        .field {
+            margin-bottom: 14px;
+        }
+
+        .field label {
+            display: block;
+            font-size: 10px;
+            font-weight: 700;
+            letter-spacing: 1.2px;
+            text-transform: uppercase;
+            color: var(--text-3);
+            margin-bottom: 6px;
+            font-family: var(--mono);
+        }
+
+        .field input,
+        .field select {
+            width: 100%;
+            height: 36px;
+            padding: 0 12px;
+            background: var(--bg-2);
+            border: 1px solid var(--border-1);
+            border-radius: 6px;
+            color: var(--text-0);
+            font-size: 13px;
+            font-family: inherit;
+        }
+
+        .field input:focus,
+        .field select:focus {
+            outline: none;
+            border-color: var(--accent-line);
+            background: var(--bg-3);
+        }
+
+        .field small {
+            display: block;
+            margin-top: 4px;
+            font-size: 10.5px;
+            color: var(--text-3);
+            font-family: var(--mono);
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border-1);
+        }
+
+        .btn {
+            height: 34px;
+            padding: 0 14px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: 700;
+            font-family: var(--mono);
+            letter-spacing: .4px;
+            border: 1px solid transparent;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            transition: all .15s ease;
+        }
+
+        .btn-save {
+            background: var(--accent);
+            color: var(--bg-0);
+            flex: 1;
+            justify-content: center;
+        }
+
+        .btn-save:hover { background: #3d8bc4; }
+
+        .btn-delete {
+            background: rgba(255,71,87,.12);
+            border-color: rgba(255,71,87,.4);
+            color: var(--critical);
+        }
+
+        .btn-delete:hover {
+            background: var(--critical);
+            color: #fff;
+        }
+
+        .btn-cancel {
+            background: var(--bg-2);
+            border-color: var(--border-1);
+            color: var(--text-1);
+        }
+
+        .btn-cancel:hover {
+            background: var(--bg-3);
+            color: var(--text-0);
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--bg-3); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--border-2); }
+
+        @media (max-width: 900px) {
+            .app { grid-template-columns: 1fr; }
+            .sidebar { display: none; }
+            .row { grid-template-columns: 34px 26px 1fr 120px; }
+            .row > :nth-child(4),
+            .row > :nth-child(5),
+            .row > :nth-child(6),
+            .row > :nth-child(7) { display: none; }
+            .row.head > :nth-child(4),
+            .row.head > :nth-child(5),
+            .row.head > :nth-child(6),
+            .row.head > :nth-child(7) { display: none; }
+        }
+    </style>
+</head>
+<body>
+
+{% set total = threats|length %}
+{% set verified_count = threats|selectattr('verified', 'equalto', True)|list|length %}
+{% set review_count = threats|rejectattr('verified', 'equalto', True)|list|length %}
+{% set critical_count = threats|selectattr('severity', 'equalto', 'Critical')|list|length %}
+
+<div class="app">
+
+    <!-- ============================================================
+         SIDEBAR
+         ============================================================ -->
+    <aside class="sidebar">
+        <div class="side-brand">
+            <div class="side-mark">🛡️</div>
+            <div class="side-name">
+                TRINETRA
+                <small>console v2.0</small>
+            </div>
+        </div>
+
+        <nav class="nav">
+            <div class="nav-section">Views</div>
+            <div class="nav-item active" data-nav="all">
+                <span class="ico">📊</span>
+                <span>All Threats</span>
+                <span class="count">{{ total }}</span>
+            </div>
+            <div class="nav-item" data-nav="review">
+                <span class="ico">⚠️</span>
+                <span>Needs Review</span>
+                <span class="count">{{ review_count }}</span>
+            </div>
+            <div class="nav-item" data-nav="verified">
+                <span class="ico">✓</span>
+                <span>Verified</span>
+                <span class="count">{{ verified_count }}</span>
+            </div>
+            <div class="nav-item" data-nav="critical">
+                <span class="ico">🚨</span>
+                <span>Critical</span>
+                <span class="count">{{ critical_count }}</span>
+            </div>
+
+            <div class="nav-section">Sources</div>
+            <div class="nav-item" data-nav="ai">
+                <span class="ico">🤖</span>
+                <span>AI Pipeline</span>
+                <span class="count">on</span>
+            </div>
+            <div class="nav-item" data-nav="human">
+                <span class="ico">👤</span>
+                <span>Human Verified</span>
+                <span class="count">{{ verified_count }}</span>
+            </div>
+        </nav>
+
+        <div class="side-foot">
+            <span class="pulse"></span>
+            <span>PIPELINE ONLINE</span>
+        </div>
+    </aside>
+
+    <!-- ============================================================
+         MAIN
+         ============================================================ -->
+    <main class="main">
+
+        <!-- Toolbar -->
+        <div class="toolbar">
+            <div class="search">
+                <span class="ico">🔎</span>
+                <input type="text" id="q" placeholder="Search threats, types, communities…" autocomplete="off">
+                <span class="kbd">/</span>
+            </div>
+
+            <div class="toolbar-sep"></div>
+
+            <div class="filter-row" id="filterRow">
+                <div class="chip active" data-filter="all">All <span class="count">{{ total }}</span></div>
+                <div class="chip" data-filter="review">Needs Review <span class="count">{{ review_count }}</span></div>
+                <div class="chip" data-filter="verified">Verified <span class="count">{{ verified_count }}</span></div>
+                <div class="chip" data-filter="critical">Critical <span class="count">{{ critical_count }}</span></div>
+            </div>
+
+            <div class="toolbar-spacer"></div>
+
+            <button class="tool-btn" onclick="location.reload()">⟳ Refresh</button>
+            <button class="tool-btn primary" onclick="window.location='/?export=1'">↓ Export</button>
+        </div>
+
+        <!-- Stats strip -->
+        <div class="stats-strip">
+            <div class="stat-cell">
+                <div class="stat-label">Total</div>
+                <div class="stat-value">{{ total }}</div>
+            </div>
+            <div class="stat-cell">
+                <div class="stat-label">Critical</div>
+                <div class="stat-value c-crit">{{ critical_count }}</div>
+            </div>
+            <div class="stat-cell">
+                <div class="stat-label">Needs Review</div>
+                <div class="stat-value c-warn">{{ review_count }}</div>
+            </div>
+            <div class="stat-cell">
+                <div class="stat-label">Verified</div>
+                <div class="stat-value c-ok">{{ verified_count }}</div>
+            </div>
+            <div class="stat-cell">
+                <div class="stat-label">Coverage</div>
+                <div class="stat-value c-accent">
+                    {% if total > 0 %}{{ ((verified_count / total) * 100)|round(0, 'floor')|int }}%{% else %}—{% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- MODULE 10 — PENDING USER REPORTS -->
+        <div class="reports-strip" id="pendingReportsStrip">
+            <div style="display: flex; align-items: center; color: var(--text-3); font-size: 12px; padding: 8px;">Loading user reports...</div>
+        </div>
+
+        <!-- Table -->
+        <div class="table-wrap">
+            {% if threats %}
+            <div class="table" id="table">
+
+                <!-- Header row -->
+                <div class="row head">
+                    <div><input type="checkbox" class="chk" id="chkAll"></div>
+                    <div></div>
+                    <div class="col-head sortable" data-sort="title">
+                        Title <span class="arrow">▼</span>
+                    </div>
+                    <div class="col-head sortable" data-sort="affected">
+                        Affected <span class="arrow">▼</span>
+                    </div>
+                    <div class="col-head sortable" data-sort="status">
+                        Status <span class="arrow">▼</span>
+                    </div>
+                    <div class="col-head sortable" data-sort="severity">
+                        Severity <span class="arrow">▼</span>
+                    </div>
+                    <div class="col-head sortable" data-sort="time">
+                        Processed <span class="arrow">▼</span>
+                    </div>
+                    <div class="col-head" style="justify-content:flex-end;">Actions</div>
+                </div>
+
+                <!-- Data rows -->
+                {% for threat in threats %}
+                {% set sev = (threat.severity or 'Medium')|lower %}
+                {% set sev_key = 'unknown' if sev not in ['critical','high','medium','low'] else sev %}
+                {% set comms_str = threat.affected_display|join(', ') if threat.affected_display else 'General Public' %}
+                <div class="row data sev-{{ sev_key }}"
+                     data-id="{{ threat.id }}"
+                     data-verified="{{ 'true' if threat.verified else 'false' }}"
+                     data-severity="{{ threat.severity or 'Medium' }}"
+                     data-title="{{ (threat.simplified.title or threat.title or '')|lower }}"
+                     data-search="{{ (threat.title ~ ' ' ~ (threat.threat_type or '') ~ ' ' ~ (threat.affected_display|join(' ')) ~ ' ' ~ (threat.simplified.what_happened or ''))|lower }}"
+                     data-time="{{ threat.processed_at or '' }}"
+                     data-communities="{{ comms_str }}">
+
+                    <div onclick="event.stopPropagation();">
+                        <input type="checkbox" class="chk row-chk">
+                    </div>
+
+                    <div>
+                        <span class="sev-dot {{ sev_key }}"></span>
+                    </div>
+
+                    <div class="title-cell">
+                        <div class="title-main">
+                            {{ threat.simplified.title or threat.title or 'Untitled' }}
+                        </div>
+                        <div class="title-sub">
+                            <span>{{ threat.id }}</span>
+                            <span class="dot">•</span>
+                            <span>{{ threat.threat_type or 'Unknown' }}</span>
+                        </div>
+                    </div>
+
+                    <div class="aff-cell">
+                        {% if threat.affected_display %}
+                            {% for who in threat.affected_display[:3] %}
+                            <span class="aff-tag">{{ who }}</span>
+                            {% endfor %}
+                            {% if threat.affected_display|length > 3 %}
+                            <span class="aff-tag">+{{ threat.affected_display|length - 3 }}</span>
+                            {% endif %}
+                        {% else %}
+                            <span class="aff-tag">General Public</span>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        {% if threat.verified %}
+                        <span class="status-cell ok"><span class="dot"></span>Verified</span>
+                        {% else %}
+                        <span class="status-cell review"><span class="dot"></span>Review</span>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <span class="sev-label {{ sev_key }}">{{ threat.severity or 'Medium' }}</span>
+                    </div>
+
+                    <div class="time-cell">
+                        {{ (threat.processed_at or '')[:16]|replace('T',' ') or '—' }}
+                    </div>
+
+                    <div class="actions-cell" onclick="event.stopPropagation();">
+                        <button class="edit-link"
+                                title="Edit threat"
+                                data-id="{{ threat.id }}"
+                                data-severity="{{ threat.severity or 'Medium' }}"
+                                data-communities="{{ comms_str }}"
+                                data-verified="{{ 'true' if threat.verified else 'false' }}"
+                                onclick="openEditModal(this)">
+                            ✎ Edit
+                        </button>
+                        <a class="view-link" href="/threat/{{ threat.id }}">VIEW →</a>
+                    </div>
+                </div>
+                {% endfor %}
+
+            </div>
+
+            <div class="empty" id="noResults" style="display:none;">
+                <div class="empty-ico">🔍</div>
+                <h3>No matching threats</h3>
+                <p>Try a different search or filter.</p>
+            </div>
+
+            {% else %}
+            <div class="empty">
+                <div class="empty-ico">📭</div>
+                <h3>No threats yet</h3>
+                <p>Run <code>python main.py --all</code> to populate the console.</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Status bar -->
+        <div class="statusbar">
+            <div class="item">
+                <span style="color:var(--ok);">●</span>
+                <span id="visibleCount">{{ total }}</span> visible
+            </div>
+            <div class="item">/ search</div>
+            <div class="item"><kbd>J</kbd> <kbd>K</kbd> navigate</div>
+            <div class="item"><kbd>↵</kbd> open</div>
+            <div class="item"><kbd>Space</kbd> select</div>
+            <div class="item" style="margin-left:auto;">
+                <span style="color:var(--accent);">TRINETRA</span>
+                <span>·</span>
+                <span>ai + human verified</span>
+            </div>
+        </div>
+
+        <!-- Bulk action bar -->
+        <div class="bulk-bar" id="bulkBar">
+            <span class="bulk-count" id="bulkCount">0 selected</span>
+            <button class="tool-btn" onclick="clearSelection()">Clear</button>
+            <button class="tool-btn primary" onclick="openSelected()">Open</button>
+        </div>
+    </main>
+</div>
+
+<!-- ============================================================
+     EDIT MODAL
+     ============================================================ -->
+<div class="modal" id="editModal">
+    <div class="modal-card">
+        <button class="modal-close" onclick="closeEditModal()">✕</button>
+
+        <div class="modal-title">Edit Threat</div>
+        <div class="modal-sub" id="editThreatId">—</div>
+
+        <div class="field">
+            <label for="editSeverity">Severity</label>
+            <select id="editSeverity">
+                <option value="Low">Low</option>
+                <option value="Medium">Medium</option>
+                <option value="High">High</option>
+                <option value="Critical">Critical</option>
+            </select>
+        </div>
+
+        <div class="field">
+            <label for="editCommunities">Communities (comma-separated)</label>
+            <input type="text"
+                   id="editCommunities"
+                   placeholder="Students, Senior Citizens">
+            <small>Canonical values: Students · Senior Citizens · Small Businesses · General Public</small>
+        </div>
+
+        <div class="field">
+            <label for="editVerified">Verification status</label>
+            <select id="editVerified">
+                <option value="false">Needs Review</option>
+                <option value="true">Verified</option>
+            </select>
+        </div>
+
+        <div class="modal-actions">
+            <button class="btn btn-delete" id="editDeleteBtn" onclick="deleteThreat()">🗑 Delete</button>
+            <button class="btn btn-cancel" onclick="closeEditModal()">Cancel</button>
+            <button class="btn btn-save" id="editSaveBtn" onclick="saveEdit()">✓ Save</button>
+        </div>
+    </div>
+</div>
+
+<!-- ============================================================
+     CLIENT-SIDE BEHAVIOUR
+     ============================================================ -->
+<script>
+(function () {
+    // ============================================================
+    // MODULE 10 — PENDING USER REPORTS
+    // ============================================================
+
+    function escapeHtml(unsafe) {
+        if (!unsafe) return "";
+        return unsafe.toString()
+             .replace(/&/g, "&amp;")
+             .replace(/</g, "&lt;")
+             .replace(/>/g, "&gt;")
+             .replace(/"/g, "&quot;")
+             .replace(/'/g, "&#039;");
+    }
+
+    window.loadPendingReports = async function() {
+        try {
+            const res = await fetch('/api/admin/reports');
+            const reports = await res.json();
+
+            const container = document.getElementById('pendingReportsStrip');
+
+            if (!reports || reports.length === 0) {
+                container.innerHTML = `<div style="display: flex; align-items: center; color: var(--text-3); font-size: 12px; padding: 8px;">No pending user reports.</div>`;
+                return;
+            }
+
+            container.innerHTML = reports.map(r => `
+                <div class="report-card">
+                    <h4>🚨 ${escapeHtml(r.threat_type)} (${escapeHtml(r.platform)})</h4>
+                    <p>${escapeHtml(r.description)}</p>
+                    <div class="report-meta">
+                        <span>By: ${escapeHtml(r.reporter_name || r.reported_by)}</span>
+                        <span>${r.reported_at ? r.reported_at.slice(11, 16) : ''}</span>
+                    </div>
+                    <div style="display: flex; gap: 6px; margin-top: 4px;">
+                        <button onclick="approveReport('${r.report_id}')" class="tool-btn primary" style="flex: 1; justify-content: center;">Approve</button>
+                        <button onclick="rejectReport('${r.report_id}')" class="tool-btn" style="flex: 1; justify-content: center; border-color: var(--critical); color: var(--critical);">Reject</button>
+                    </div>
+                </div>
+            `).join('');
+        } catch (e) {
+            console.error("Failed to load reports", e);
+        }
+    };
+
+    window.approveReport = async function(id) {
+        if (!confirm("Approve this report? This will push it through the AI pipeline to create a new confirmed threat.")) return;
+
+        try {
+            const res = await fetch(`/api/admin/approve-report/${id}`, { method: 'POST' });
+            const data = await res.json();
+            if (res.ok) {
+                alert("✅ Approved and processed by AI.");
+                loadPendingReports();
+                location.reload();
+            } else {
+                alert("Error: " + (data.error || "Could not approve report"));
+            }
+        } catch (e) {
+            alert("Network error. Please try again.");
+        }
+    };
+
+    window.rejectReport = async function(id) {
+        if (!confirm("Reject this report? This will mark it as fake/untrustable and it will NOT be added to the database.")) return;
+        try {
+            const res = await fetch(`/api/admin/reject-report/${id}`, { method: 'POST' });
+            if (res.ok) {
+                alert("🗑️ Report rejected and removed from queue.");
+                loadPendingReports();
+            } else {
+                alert("Error rejecting report.");
+            }
+        } catch (e) { alert("Network error"); }
+    };
+
+    loadPendingReports();
+
+
+    // ============================================================
+    // EDIT MODAL
+    // ============================================================
+    let currentEditId = null;
+
+    window.openEditModal = function (btn) {
+        const id          = btn.dataset.id;
+        const severity    = btn.dataset.severity || 'Medium';
+        const communities = btn.dataset.communities || 'General Public';
+        const verified    = btn.dataset.verified === 'true';
+
+        currentEditId = id;
+
+        document.getElementById('editThreatId').textContent = id;
+        document.getElementById('editSeverity').value      = severity;
+        document.getElementById('editCommunities').value   = communities;
+        document.getElementById('editVerified').value      = verified ? 'true' : 'false';
+
+        document.getElementById('editModal').classList.add('open');
+    };
+
+    window.closeEditModal = function () {
+        document.getElementById('editModal').classList.remove('open');
+        currentEditId = null;
+    };
+
+    window.saveEdit = async function () {
+        if (!currentEditId) return;
+
+        const sev   = document.getElementById('editSeverity').value;
+        const commsRaw = document.getElementById('editCommunities').value || '';
+        const comms = commsRaw.split(',')
+                             .map(s => s.trim())
+                             .filter(Boolean);
+        const verified = document.getElementById('editVerified').value === 'true';
+
+        const saveBtn = document.getElementById('editSaveBtn');
+        saveBtn.disabled = true;
+        saveBtn.textContent = 'Saving…';
+
+        try {
+            const res = await fetch(`/api/admin/edit-threat/${currentEditId}`, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    severity: sev,
+                    communities: comms,
+                    verified: verified
+                })
+            });
+            const data = await res.json().catch(() => ({}));
+
+            if (res.ok) {
+                location.reload();
+            } else {
+                alert("❌ Failed: " + (data.error || "Unknown error"));
+                saveBtn.disabled = false;
+                saveBtn.textContent = '✓ Save';
+            }
+        } catch (e) {
+            alert("Network error: " + e.message);
+            saveBtn.disabled = false;
+            saveBtn.textContent = '✓ Save';
+        }
+    };
+
+    window.deleteThreat = async function () {
+        if (!currentEditId) return;
+        if (!confirm(`Delete threat "${currentEditId}"? This cannot be undone.`)) return;
+
+        const delBtn = document.getElementById('editDeleteBtn');
+        delBtn.disabled = true;
+        delBtn.textContent = 'Deleting…';
+
+        try {
+            const res = await fetch(`/api/admin/delete-threat/${currentEditId}`, {
+                method: 'POST'
+            });
+            const data = await res.json().catch(() => ({}));
+
+            if (res.ok) {
+                location.reload();
+            } else {
+                alert("❌ Failed: " + (data.error || "Unknown error"));
+                delBtn.disabled = false;
+                delBtn.textContent = '🗑 Delete';
+            }
+        } catch (e) {
+            alert("Network error: " + e.message);
+            delBtn.disabled = false;
+            delBtn.textContent = '🗑 Delete';
+        }
+    };
+
+    // Close modal on backdrop click + Escape key
+    document.getElementById('editModal').addEventListener('click', function (e) {
+        if (e.target.id === 'editModal') closeEditModal();
+    });
+
+    document.addEventListener('keydown', function (e) {
+        if (e.key === 'Escape' && document.getElementById('editModal').classList.contains('open')) {
+            closeEditModal();
+        }
+    });
+
+
+    // ============================================================
+    // EXISTING DASHBOARD LOGIC (Search, Filter, Sort, etc.)
+    // ============================================================
+    const search   = document.getElementById('q');
+    const table    = document.getElementById('table');
+    const noRes    = document.getElementById('noResults');
+    const visCount = document.getElementById('visibleCount');
+    const chkAll   = document.getElementById('chkAll');
+    const bulkBar  = document.getElementById('bulkBar');
+    const bulkCnt  = document.getElementById('bulkCount');
+
+    const navItems = document.querySelectorAll('.nav-item[data-nav]');
+    const chips    = document.querySelectorAll('.chip[data-filter]');
+
+    let rows = table ? Array.from(table.querySelectorAll('.row.data')) : [];
+    let activeFilter = 'all';
+    let activeRowIndex = -1;
+
+    function applyFilters() {
+        const q = (search?.value || '').trim().toLowerCase();
+        let visible = 0;
+
+        rows.forEach(row => {
+            const hay = row.dataset.search || '';
+            const verified = row.dataset.verified === 'true';
+            const sev = (row.dataset.severity || '').toLowerCase();
+
+            const matchQ = !q || hay.includes(q);
+
+            let matchF = true;
+            if (activeFilter === 'verified') matchF = verified;
+            else if (activeFilter === 'review') matchF = !verified;
+            else if (activeFilter === 'critical') matchF = sev === 'critical';
+
+            const show = matchQ && matchF;
+            row.style.display = show ? '' : 'none';
+            if (show) visible++;
+        });
+
+        if (visCount) visCount.textContent = visible;
+        if (noRes) noRes.style.display = visible === 0 ? '' : 'none';
+        activeRowIndex = -1;
+    }
+
+    function setFilter(name) {
+        activeFilter = name;
+        chips.forEach(c => c.classList.toggle('active', c.dataset.filter === name));
+        navItems.forEach(n => n.classList.toggle('active', n.dataset.nav === name));
+        applyFilters();
+    }
+
+    chips.forEach(c => c.addEventListener('click', () => setFilter(c.dataset.filter)));
+    navItems.forEach(n => n.addEventListener('click', () => {
+        const f = n.dataset.nav;
+        if (['all', 'review', 'verified', 'critical'].includes(f)) setFilter(f);
+    }));
+
+    search?.addEventListener('input', applyFilters);
+
+    document.querySelectorAll('.col-head.sortable').forEach(head => {
+        head.addEventListener('click', () => {
+            const key = head.dataset.sort;
+            const isAsc = head.classList.toggle('sorted-asc');
+            head.classList.toggle('sorted', true);
+            head.classList.remove('sorted-desc');
+            if (!isAsc) {
+                head.classList.remove('sorted-asc');
+                head.classList.add('sorted-desc');
+            }
+
+            const parent = head.closest('.row.head');
+            parent.querySelectorAll('.col-head').forEach(h => {
+                if (h !== head) {
+                    h.classList.remove('sorted', 'sorted-asc', 'sorted-desc');
+                }
+            });
+
+            const dir = isAsc ? 1 : -1;
+
+            rows.sort((a, b) => {
+                let va, vb;
+                if (key === 'title') { va = a.dataset.title; vb = b.dataset.title; }
+                else if (key === 'time') { va = a.dataset.time; vb = b.dataset.time; }
+                else if (key === 'severity') {
+                    const rank = { critical: 4, high: 3, medium: 2, low: 1 };
+                    va = rank[(a.dataset.severity||'').toLowerCase()] || 0;
+                    vb = rank[(b.dataset.severity||'').toLowerCase()] || 0;
+                }
+                else if (key === 'status') {
+                    va = a.dataset.verified === 'true' ? 1 : 0;
+                    vb = b.dataset.verified === 'true' ? 1 : 0;
+                }
+                else { va = ''; vb = ''; }
+
+                if (va < vb) return -1 * dir;
+                if (va > vb) return  1 * dir;
+                return 0;
+            });
+
+            rows.forEach(r => table.appendChild(r));
+        });
+    });
+
+    // Row click — opens detail page (ignoring clicks on inputs/buttons/links)
+    rows.forEach(row => {
+        row.addEventListener('click', (e) => {
+            if (e.target.closest('button, a, input')) return;
+            const id = row.dataset.id;
+            if (id) window.location.href = '/threat/' + id;
+        });
+    });
+
+    function getSelected() {
+        return rows.filter(r => r.querySelector('.row-chk')?.checked);
+    }
+
+    function updateBulk() {
+        const sel = getSelected();
+        const n = sel.length;
+        if (bulkBar) bulkBar.classList.toggle('show', n > 0);
+        if (bulkCnt) bulkCnt.textContent = n + ' selected';
+
+        rows.forEach(r => r.classList.toggle('selected',
+            r.querySelector('.row-chk')?.checked));
+
+        if (chkAll) {
+            chkAll.checked = rows.length > 0 && n === rows.length;
+        }
+    }
+
+    document.querySelectorAll('.row-chk').forEach(cb => {
+        cb.addEventListener('change', updateBulk);
+    });
+
+    chkAll?.addEventListener('change', () => {
+        rows.forEach(r => {
+            const cb = r.querySelector('.row-chk');
+            if (cb) cb.checked = chkAll.checked;
+        });
+        updateBulk();
+    });
+
+    window.clearSelection = function () {
+        rows.forEach(r => r.querySelector('.row-chk').checked = false);
+        if (chkAll) chkAll.checked = false;
+        updateBulk();
+    };
+
+    window.openSelected = function () {
+        const sel = getSelected();
+        if (sel.length === 0) return;
+        window.location.href = '/threat/' + sel[0].dataset.id;
+    };
+
+    function visibleRows() {
+        return rows.filter(r => r.style.display !== 'none');
+    }
+
+    function moveCursor(delta) {
+        const v = visibleRows();
+        if (!v.length) return;
+
+        if (activeRowIndex >= 0 && v[activeRowIndex]) {
+            v[activeRowIndex].classList.remove('selected');
+        }
+
+        activeRowIndex = Math.max(0, Math.min(v.length - 1, activeRowIndex + delta));
+        const row = v[activeRowIndex];
+        row.classList.add('selected');
+        row.scrollIntoView({ block: 'nearest' });
+    }
+
+    document.addEventListener('keydown', e => {
+        // Don't hijack keys while the edit modal is open
+        if (document.getElementById('editModal').classList.contains('open')) return;
+
+        const tag = (e.target.tagName || '').toLowerCase();
+        const typing = tag === 'input' || tag === 'textarea';
+
+        if (e.key === '/' && !typing) {
+            e.preventDefault();
+            search?.focus();
+            return;
+        }
+
+        if (e.key === 'Escape') {
+            if (typing) {
+                search?.blur();
+            } else {
+                search.value = '';
+                applyFilters();
+            }
+            return;
+        }
+
+        if (typing) return;
+
+        if (e.key === 'j' || e.key === 'ArrowDown') {
+            e.preventDefault();
+            moveCursor(1);
+        } else if (e.key === 'k' || e.key === 'ArrowUp') {
+            e.preventDefault();
+            moveCursor(-1);
+        }
+
+        if (e.key === 'Enter') {
+            const v = visibleRows();
+            if (activeRowIndex >= 0 && v[activeRowIndex]) {
+                window.location.href = '/threat/' + v[activeRowIndex].dataset.id;
+            }
+        }
+
+        if (e.key === ' ') {
+            const v = visibleRows();
+            if (activeRowIndex >= 0 && v[activeRowIndex]) {
+                e.preventDefault();
+                const cb = v[activeRowIndex].querySelector('.row-chk');
+                cb.checked = !cb.checked;
+                updateBulk();
+            }
+        }
+    });
+
+    applyFilters();
+})();
+</script>
+</body>
+</html>
