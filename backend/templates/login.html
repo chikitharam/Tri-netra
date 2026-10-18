@@ -169,52 +169,6 @@
             text-align: center;
         }
 
-        .demo {
-            margin-top: 26px;
-            padding-top: 22px;
-            border-top: 1px solid var(--border-0);
-        }
-
-        .demo h3 {
-            margin: 0 0 12px;
-            font-size: 10.5px;
-            letter-spacing: 1.5px;
-            text-transform: uppercase;
-            color: var(--text-3);
-            font-family: var(--mono);
-            font-weight: 700;
-        }
-
-        .demo ul {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .demo li {
-            padding: 8px 10px;
-            margin-bottom: 4px;
-            border-radius: 6px;
-            background: var(--bg-0);
-            border: 1px solid var(--border-0);
-            font-size: 12.5px;
-            color: var(--text-2);
-            font-family: var(--mono);
-            display: flex;
-            justify-content: space-between;
-            gap: 10px;
-        }
-
-        .demo li strong {
-            color: var(--text-0);
-            font-weight: 600;
-        }
-
-        .demo li span {
-            color: var(--text-3);
-            font-size: 11.5px;
-        }
-
         .signup-link {
             margin-top: 24px;
             text-align: center;
@@ -264,21 +218,12 @@
             <button type="submit">Sign In →</button>
         </form>
 
-        {% if users %}
-        <div class="demo">
-            <h3>Demo accounts</h3>
-            <ul>
-                {% for u in users %}
-                <li>
-                    <strong>{{ u.name }}</strong>
-                    <span>{{ u.community }}</span>
-                </li>
-                {% endfor %}
-            </ul>
+        <!-- ADMIN LOGIN LINK -->
+        <div class="signup-link" style="margin-top: 20px; margin-bottom: 10px;">
+            <a href="/" style="color: var(--text-2); font-size: 13px;">🔐 Admin Console Login</a>
         </div>
-        {% endif %}
 
-        <!-- NEW SIGN UP LINK -->
+        <!-- SIGN UP LINK -->
         <div class="signup-link">
             Don't have an account? <a href="/register">Sign Up</a>
         </div>
